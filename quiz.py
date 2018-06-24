@@ -5,6 +5,7 @@ import wx
 import csv
 import codecs
 import time
+import unicodedata
 
 class Quiz(wx.Frame):
 
@@ -94,16 +95,15 @@ class Quiz(wx.Frame):
         Quiz.question[index].append(row[0])
         #問題漢文
         #漢字のみを抽出して漢文を作成する
+        
         kanbun = []
+
         for i in row[1]:
-          if('亜' <= i <= '話'):
+          if("CJK UNIFIED" in unicodedata.name(i)):
             kanbun.append(i)
             if(len(kanbun)%10 == 0):
               kanbun.append("\n")
-        kanbun = "".join(kanbun)
-
-        Quiz.question[index].append(kanbun)
-        
+        Quiz.question[index].append("".join(kanbun))
         #問題全文
         Quiz.question[index].append(row[1])
 
