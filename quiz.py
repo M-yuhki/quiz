@@ -26,7 +26,7 @@ class Quiz(wx.Frame):
   call_num = 0 #呼び出し回数
   pointer = 0 #現在対象としている漢字
   counter = 0 #カウンター
-  frame = 250 #文字を送る時間(ms)
+  frame = 800 #文字を送る時間(ms)
 
   def __init__(self,*args,**kw):
     super(Quiz,self).__init__(*args,**kw)
@@ -93,17 +93,22 @@ class Quiz(wx.Frame):
         Quiz.question.append([])
         #問題番号
         Quiz.question[index].append(row[0])
+        
         #問題漢文
         #漢字のみを抽出して漢文を作成する
         
-        kanbun = []
+        kanbun = ""
 
         for i in row[1]:
+
+          # unicodeから漢字を判定
           if("CJK UNIFIED" in unicodedata.name(i)):
-            kanbun.append(i)
-            if(len(kanbun)%10 == 0):
-              kanbun.append("\n")
-        Quiz.question[index].append("".join(kanbun))
+            kanbun += i
+            #20文字ごとに改行
+            if(len(kanbun)%20 == 0):
+              kanbun += "\n"
+        Quiz.question[index].append(kanbun)
+        
         #問題全文
         Quiz.question[index].append(row[1])
 
@@ -128,22 +133,27 @@ class Quiz(wx.Frame):
     elif Quiz.push % 3 == 1:
       self.call_num = len(Quiz.zenbun_now) - len(Quiz.kanbun_now)
       self.counter = 0
+      self.pointer = 0
       self.main.SetLabel(str(qnum+1) + "問目:全文")
-      self.timer.Start(self.frame) #問題の表示を開始
+      self.timer.Start(self.frame) #reloadquestionの呼び出し開始
   
     else:
-      self.timer.Stop()
+      self.timer.Stop() # reloadquestionの呼び出し終了
       self.main.SetLabel(str(qnum+1) + "問目:回答")
       self.text.SetLabel(str(Quiz.question[qnum][3]))
 
   # 問題文の更新を行う関数
   def reloadquestion(self, event):
+    while True:
+      if(self.counter == self.call_num):
+        self.timer.Stop()
+
+      if(Quiz.zenbun_now[self.counter + self.pointer] == Quiz.kanbun_now[self.pointer] and self.pointer < len(Quiz.kanbun_now) - 1):
+        self.pointer += 1
+      else:
+        break
     self.text.SetLabel(Quiz.zenbun_now[:self.counter + self.pointer] + Quiz.kanbun_now[self.pointer:])
     self.counter += 1
-    if(Quiz.zenbun_now[self.counter] == Quiz.kanbun_now[self.pointer] and self.pointer < len(Quiz.kanbun_now) - 1):
-      self.pointer += 1
-    if(self.counter == self.call_num):
-      self.timer.Stop()
     return 0
 
 
