@@ -26,7 +26,8 @@ class Quiz(wx.Frame):
   call_num = 0 #呼び出し回数
   pointer = 0 #現在対象としている漢字
   counter = 0 #カウンター
-  frame = 800 #文字を送る時間(ms)
+  frame = 200 #文字を送る時間(ms)
+  last_flg = True # 最後の1文字の表示に関するフラグ
 
   def __init__(self,*args,**kw):
     super(Quiz,self).__init__(*args,**kw)
@@ -104,9 +105,6 @@ class Quiz(wx.Frame):
           # unicodeから漢字を判定
           if("CJK UNIFIED" in unicodedata.name(i)):
             kanbun += i
-            #20文字ごとに改行
-            if(len(kanbun)%20 == 0):
-              kanbun += "\n"
         Quiz.question[index].append(kanbun)
         
         #問題全文
@@ -129,7 +127,13 @@ class Quiz(wx.Frame):
       Quiz.kanbun_now = str(Quiz.question[qnum][1])
       Quiz.zenbun_now = str(Quiz.question[qnum][2])
       self.main.SetLabel(str(qnum+1) + "問目:漢文")
-      self.text.SetLabel(Quiz.kanbun_now)
+      
+      # 適切な箇所に改行を挟む
+      kanbun_output = Quiz.kanbun_now
+      for i in range(int(len(Quiz.kanbun_now)/20)):
+        kanbun_output = kanbun_output[:20*(i+1)+i] + "\n" +kanbun_output[20*(i+1)+i:]
+      
+      self.text.SetLabel(kanbun_output)
     elif Quiz.push % 3 == 1:
       self.call_num = len(Quiz.zenbun_now) - len(Quiz.kanbun_now)
       self.counter = 0
@@ -143,6 +147,8 @@ class Quiz(wx.Frame):
       self.text.SetLabel(str(Quiz.question[qnum][3]))
 
   # 問題文の更新を行う関数
+  
+  # 1フレーム分処理がおかしい
   def reloadquestion(self, event):
     while True:
       if(self.counter == self.call_num):
@@ -150,9 +156,19 @@ class Quiz(wx.Frame):
 
       if(Quiz.zenbun_now[self.counter + self.pointer] == Quiz.kanbun_now[self.pointer] and self.pointer < len(Quiz.kanbun_now) - 1):
         self.pointer += 1
+      elif(Quiz.zenbun_now[self.counter + self.pointer] == Quiz.kanbun_now[self.pointer] and self.pointer == len(Quiz.kanbun_now) - 1 and self.last_flg):
+        self.last_flg = False
       else:
         break
-    self.text.SetLabel(Quiz.zenbun_now[:self.counter + self.pointer] + Quiz.kanbun_now[self.pointer:])
+    
+    zenbun_output = Quiz.zenbun_now[:self.counter + self.pointer + 1]
+    if(self.pointer != len(Quiz.kanbun_now) -1 or self.last_flg):
+      zenbun_output += Quiz.kanbun_now[self.pointer:]
+
+    for i in range(int(len(Quiz.zenbun_now)/20)):
+      zenbun_output = zenbun_output[:20*(i+1)+i] + "\n" + zenbun_output[20*(i+1)+i:]
+    
+    self.text.SetLabel(zenbun_output)
     self.counter += 1
     return 0
 
