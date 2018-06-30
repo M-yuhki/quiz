@@ -11,12 +11,16 @@ class Quiz(wx.Frame):
 
   #クラス変数の定義
   
-  #ボタンを押した回数&問題数のチェック
+  #ボタンを押した回数
+  #現在の問題数のチェックにも使用
   push = -1
 
   #csvファイルから抽出した問題を保存する配列
   #各項目にさらに配列を格納していく
   question = []
+
+  #登録されている問題数
+  q_num = 0
   
   #現在出題されている問題の漢文と全文
   kanbun_now = ""
@@ -26,7 +30,7 @@ class Quiz(wx.Frame):
   call_num = 0 #呼び出し回数
   pointer = 0 #現在対象としている漢字
   counter = 0 #カウンター
-  frame = 200 #文字を送る時間(ms)
+  frame = 200 #文字を送る時間間隔(ms)
   last_flg = True # 最後の1文字の表示に関するフラグ
 
   def __init__(self,*args,**kw):
@@ -62,7 +66,7 @@ class Quiz(wx.Frame):
     #進行用のボタン
     btn = wx.Button(panel_ui,-1,'Next',pos=(420,550))
     btn.Bind(wx.EVT_BUTTON,self.clicked)
-    
+   
     # 問題文用ウィンドウ
     # sizeは横900*縦400 題字と被らないように上のインデント広め
     panel_text = wx.Panel(self, -1, pos=(50,110),size=(900,500))
@@ -114,7 +118,9 @@ class Quiz(wx.Frame):
         Quiz.question[index].append(row[2])
 
         index += 1
-        
+      
+      # 全問題数を取得
+      self.q_num = len(Quiz.question)
 
   #ボタンを押した際の制御を行う関数
   def clicked(self,event):
@@ -122,11 +128,17 @@ class Quiz(wx.Frame):
     # 今、何問目？
     qnum = Quiz.push // 3
 
-    #問題の表示
-    if Quiz.push % 3 == 0:
+    #全問題終了
+    if(Quiz.push == self.q_num * 3):
+      self.timer.Stop() # reloadquestionの呼び出し終了
+      self.main.SetLabel("終了")
+      self.text.SetLabel("全{}問、お疲れ様でした".format(self.q_num))
+
+    #漢文表示
+    elif Quiz.push % 3 == 0:
       Quiz.kanbun_now = str(Quiz.question[qnum][1])
       Quiz.zenbun_now = str(Quiz.question[qnum][2])
-      self.main.SetLabel(str(qnum+1) + "問目:漢文")
+      self.main.SetLabel("{}問目:漢文".format(str(qnum+1)))
       
       # 適切な箇所に改行を挟む
       kanbun_output = Quiz.kanbun_now
@@ -134,16 +146,20 @@ class Quiz(wx.Frame):
         kanbun_output = kanbun_output[:20*(i+1)+i] + "\n" +kanbun_output[20*(i+1)+i:]
       
       self.text.SetLabel(kanbun_output)
+    
+    #全文表示
     elif Quiz.push % 3 == 1:
       self.call_num = len(Quiz.zenbun_now) - len(Quiz.kanbun_now)
       self.counter = 0
       self.pointer = 0
-      self.main.SetLabel(str(qnum+1) + "問目:全文")
+      self.last_flg = True
+      self.main.SetLabel("{}問目:全文".format(str(qnum+1)))
       self.timer.Start(self.frame) #reloadquestionの呼び出し開始
   
+    #解答表示
     else:
       self.timer.Stop() # reloadquestionの呼び出し終了
-      self.main.SetLabel(str(qnum+1) + "問目:回答")
+      self.main.SetLabel("{}問目:回答".format(str(qnum+1)))
       self.text.SetLabel(str(Quiz.question[qnum][3]))
 
   # 問題文の更新を行う関数
@@ -158,6 +174,7 @@ class Quiz(wx.Frame):
         self.pointer += 1
       elif(Quiz.zenbun_now[self.counter + self.pointer] == Quiz.kanbun_now[self.pointer] and self.pointer == len(Quiz.kanbun_now) - 1 and self.last_flg):
         self.last_flg = False
+        break
       else:
         break
     
