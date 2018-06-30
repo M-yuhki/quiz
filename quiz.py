@@ -63,13 +63,28 @@ class Quiz(wx.Frame):
     layout = wx.BoxSizer(wx.VERTICAL)
     layout.Add(self.main,flag=wx.GROW)
 
-    #進行用のボタン
+    # 各種ボタン
+
+    #全体進行用のボタン
     btn = wx.Button(panel_ui,-1,'Next',pos=(420,550))
-    btn.Bind(wx.EVT_BUTTON,self.clicked)
+    btn.Bind(wx.EVT_BUTTON,self.clicked_next)
+
+
+    #全文表示の停止用のボタン
+    btn_stop = wx.Button(panel_ui,-1,'Stop', pos=(320,520))
+    btn_stop.Bind(wx.EVT_BUTTON,self.clicked_stop)
+    btn_stop.Disable() #問題進行中以外は非表示
+    
+    # 次はこの辺のボタンの有効無効をきちんとする
+
+    #全文表示の再開用ボタン
+    btn_start = wx.Button(panel_ui,-1,'Start',pos=(520,520))
+    btn_start.Bind(wx.EVT_BUTTON, self.clicked_start)
+    btn_start.Disable() # 問題進行中以外は非表示
    
     # 問題文用ウィンドウ
     # sizeは横900*縦400 題字と被らないように上のインデント広め
-    panel_text = wx.Panel(self, -1, pos=(50,110),size=(900,500))
+    panel_text = wx.Panel(self, -1, pos=(50,110),size=(900,400))
 
     # 問題文を表示
     # 最初は表示なし、あとでここにtext追加
@@ -122,8 +137,8 @@ class Quiz(wx.Frame):
       # 全問題数を取得
       self.q_num = len(Quiz.question)
 
-  #ボタンを押した際の制御を行う関数
-  def clicked(self,event):
+  #全体進行ボタンを押した際の制御を行う関数
+  def clicked_next(self,event):
     Quiz.push += 1
     # 今、何問目？
     qnum = Quiz.push // 3
@@ -149,6 +164,8 @@ class Quiz(wx.Frame):
     
     #全文表示
     elif Quiz.push % 3 == 1:
+      
+      # reloadquestionを呼び出すための各種準備
       self.call_num = len(Quiz.zenbun_now) - len(Quiz.kanbun_now)
       self.counter = 0
       self.pointer = 0
@@ -161,10 +178,8 @@ class Quiz(wx.Frame):
       self.timer.Stop() # reloadquestionの呼び出し終了
       self.main.SetLabel("{}問目:回答".format(str(qnum+1)))
       self.text.SetLabel(str(Quiz.question[qnum][3]))
-
+ 
   # 問題文の更新を行う関数
-  
-  # 1フレーム分処理がおかしい
   def reloadquestion(self, event):
     while True:
       if(self.counter == self.call_num):
@@ -189,6 +204,12 @@ class Quiz(wx.Frame):
     self.counter += 1
     return 0
 
+  # 全文表示の停止・再開ボタンを制御する関数
+  def clicked_stop(self,event):
+    return 0
+ 
+  def clicked_start(self,event):
+    return 0
 
 quiz = wx.App()
 Quiz(None)
