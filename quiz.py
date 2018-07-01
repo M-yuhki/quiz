@@ -71,16 +71,16 @@ class Quiz(wx.Frame):
 
 
     #全文表示の停止用のボタン
-    btn_stop = wx.Button(panel_ui,-1,'Stop', pos=(320,520))
-    btn_stop.Bind(wx.EVT_BUTTON,self.clicked_stop)
-    btn_stop.Disable() #問題進行中以外は非表示
+    self.btn_stop = wx.Button(panel_ui,-1,'Stop', pos=(320,520))
+    self.btn_stop.Bind(wx.EVT_BUTTON,self.clicked_stop)
+    self.btn_stop.Disable() #問題進行中以外は非表示
     
     # 次はこの辺のボタンの有効無効をきちんとする
 
     #全文表示の再開用ボタン
-    btn_start = wx.Button(panel_ui,-1,'Start',pos=(520,520))
-    btn_start.Bind(wx.EVT_BUTTON, self.clicked_start)
-    btn_start.Disable() # 問題進行中以外は非表示
+    self.btn_start = wx.Button(panel_ui,-1,'Start',pos=(520,520))
+    self.btn_start.Bind(wx.EVT_BUTTON, self.clicked_start)
+    self.btn_start.Disable() # 問題進行中以外は非表示
    
     # 問題文用ウィンドウ
     # sizeは横900*縦400 題字と被らないように上のインデント広め
@@ -170,12 +170,15 @@ class Quiz(wx.Frame):
       self.counter = 0
       self.pointer = 0
       self.last_flg = True
+      self.btn_stop.Enable()
       self.main.SetLabel("{}問目:全文".format(str(qnum+1)))
       self.timer.Start(self.frame) #reloadquestionの呼び出し開始
   
     #解答表示
     else:
       self.timer.Stop() # reloadquestionの呼び出し終了
+      self.btn_start.Disable()
+      self.btn_stop.Disable()
       self.main.SetLabel("{}問目:回答".format(str(qnum+1)))
       self.text.SetLabel(str(Quiz.question[qnum][3]))
  
@@ -183,6 +186,8 @@ class Quiz(wx.Frame):
   def reloadquestion(self, event):
     while True:
       if(self.counter == self.call_num):
+        self.btn_start.Disable()
+        self.btn_stop.Disable()
         self.timer.Stop()
 
       if(Quiz.zenbun_now[self.counter + self.pointer] == Quiz.kanbun_now[self.pointer] and self.pointer < len(Quiz.kanbun_now) - 1):
@@ -206,9 +211,15 @@ class Quiz(wx.Frame):
 
   # 全文表示の停止・再開ボタンを制御する関数
   def clicked_stop(self,event):
+    self.btn_stop.Disable()
+    self.btn_start.Enable()
+    self.timer.Stop()
     return 0
  
   def clicked_start(self,event):
+    self.btn_start.Disable()
+    self.btn_stop.Enable()
+    self.timer.Start(self.frame)
     return 0
 
 quiz = wx.App()
