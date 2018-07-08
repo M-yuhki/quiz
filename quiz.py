@@ -16,6 +16,9 @@ class Quiz(wx.Frame):
     # 現在の問題数のチェックにも使用
     push = -1
 
+    # 選択したcsvファイル名
+    filename = ""
+
     # csvファイルから抽出した問題を保存する配列
     # 各項目にさらに配列を格納していく
     question = []
@@ -43,7 +46,7 @@ class Quiz(wx.Frame):
     def init_ui(self):
 
         #"question.csv"から問題情報を抽出
-        self.collectquestion('question.csv')
+        #self.collectquestion('question.csv')
 
         # ウィンドウの生成
         self.SetTitle('漢文テクニカルクイズ')
@@ -68,16 +71,16 @@ class Quiz(wx.Frame):
         # 各種ボタン
 
         # 全体進行用のボタン
-        btn = wx.Button(panel_ui, -1, 'Next', pos=(420, 550))
+        btn = wx.Button(panel_ui, -1, 'Next', pos=(380, 550))
         btn.Bind(wx.EVT_BUTTON, self.clicked_next)
 
         # 全文表示の停止用のボタン
-        self.btn_stop = wx.Button(panel_ui, -1, 'Stop', pos=(320, 520))
+        self.btn_stop = wx.Button(panel_ui, -1, 'Stop', pos=(280, 520))
         self.btn_stop.Bind(wx.EVT_BUTTON, self.clicked_stop)
         self.btn_stop.Disable()  # 問題進行中以外は使用不可
 
         # 全文表示の再開用ボタン
-        self.btn_start = wx.Button(panel_ui, -1, 'Start', pos=(520, 520))
+        self.btn_start = wx.Button(panel_ui, -1, 'Start', pos=(480, 520))
         self.btn_start.Bind(wx.EVT_BUTTON, self.clicked_start)
         self.btn_start.Disable()  # 問題進行中以外は使用不可
 
@@ -86,17 +89,37 @@ class Quiz(wx.Frame):
         panel_text = wx.Panel(self, -1, pos=(50, 110), size=(900, 400))
 
         # 問題文を表示
-        # 最初は表示なし、あとでここにtext追加
+        # 最初は問題文の選択メニューを表示しておく。あとでここにtext追加。
         self.text = wx.StaticText(panel_text, -1, '')
         self.text.SetFont(mainfont)
         layout = wx.BoxSizer(wx.VERTICAL)
         layout.Add(self.text, flag=wx.GROW)
+
+        # 問題選択用のプルダウンメニュー
+        question_list = ["question.csv"]
+        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください',pos=(320,100),size=(220,26),
+                         choices=question_list, style=wx.CB_DROPDOWN)
+        
+        # 全文表示の再開用ボタン
+        self.btn_load = wx.Button(panel_text, -1, 'Load', pos=(380, 220))
+        self.btn_load.Bind(wx.EVT_BUTTON, self.clicked_load)
 
         # タイマーオブジェクト
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.reloadquestion)
         self.Fit()
         self.counter = 0
+
+    # 最初の状態を作る関数
+    def start(self):
+        self.main.SetLabel("漢文テクニカルクイズ")
+        self.text.SetLabel("")
+        Quiz.push = -1
+
+    # loadボタン用の関数
+    def clicked_load(self,event):
+      self.filename = self.combobox.GetStringSelection()
+      self.collectquestion(self.filename)
 
     # 問題文の収集を行う関数
     # 問題はcsvファイルに記述するが、utf-8にencodeを施す必要あり
@@ -146,9 +169,7 @@ class Quiz(wx.Frame):
             self.text.SetLabel("全{}問、お疲れ様でした".format(self.q_num))
 
         elif(Quiz.push == self.q_num * 3 + 1):
-            self.main.SetLabel("漢文テクニカルクイズ")
-            self.text.SetLabel("")
-            Quiz.push = -1
+            self.start()
 
         # 漢文表示
         elif Quiz.push % 3 == 0:
