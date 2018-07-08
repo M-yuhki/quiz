@@ -6,6 +6,7 @@ import csv
 import codecs
 import time
 import unicodedata
+import os
 
 
 class Quiz(wx.Frame):
@@ -17,7 +18,7 @@ class Quiz(wx.Frame):
     push = -1
 
     # 選択したcsvファイル名
-    filename = ""
+    filepath = ""
 
     # csvファイルから抽出した問題を保存する配列
     # 各項目にさらに配列を格納していく
@@ -37,17 +38,13 @@ class Quiz(wx.Frame):
     frame = 200  # 文字を送る時間間隔(ms)
     last_flg = True  # 最後の1文字の表示に関するフラグ
 
-    def __init__(self, *args, **kw):
-        super(Quiz, self).__init__(*args, **kw)
-
-        self.init_ui()
 
     # 初期設定を行う関数
     def init_ui(self):
 
         #"question.csv"から問題情報を抽出
         #self.collectquestion('question.csv')
-
+        
         # ウィンドウの生成
         self.SetTitle('漢文テクニカルクイズ')
         self.SetBackgroundColour((210, 255, 212))
@@ -71,8 +68,8 @@ class Quiz(wx.Frame):
         # 各種ボタン
 
         # 全体進行用のボタン
-        btn = wx.Button(panel_ui, -1, 'Next', pos=(380, 550))
-        btn.Bind(wx.EVT_BUTTON, self.clicked_next)
+        self.btn = wx.Button(panel_ui, -1, 'Next', pos=(380, 550))
+        self.btn.Bind(wx.EVT_BUTTON, self.clicked_next)
 
         # 全文表示の停止用のボタン
         self.btn_stop = wx.Button(panel_ui, -1, 'Stop', pos=(280, 520))
@@ -96,7 +93,8 @@ class Quiz(wx.Frame):
         layout.Add(self.text, flag=wx.GROW)
 
         # 問題選択用のプルダウンメニュー
-        question_list = ["question.csv"]
+        # 問題ファイル一覧を取得
+        question_list = self.getquestion()
         self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください',pos=(320,100),size=(220,26),
                          choices=question_list, style=wx.CB_DROPDOWN)
         
@@ -110,16 +108,38 @@ class Quiz(wx.Frame):
         self.Fit()
         self.counter = 0
 
+        # 初期状態にする
+        self.start()
+
     # 最初の状態を作る関数
     def start(self):
         self.main.SetLabel("漢文テクニカルクイズ")
         self.text.SetLabel("")
         Quiz.push = -1
+        self.question.clear()
+        self.btn.Disable()
+        self.btn_load.Show()
+        self.combobox.Show()
+
 
     # loadボタン用の関数
     def clicked_load(self,event):
-      self.filename = self.combobox.GetStringSelection()
-      self.collectquestion(self.filename)
+      self.filepath = "question/" + self.combobox.GetStringSelection()
+      try: # ファイルのロードを試みる
+        self.collectquestion(self.filepath)
+      except: # 失敗時はnextボタンを無効化
+        self.btn.Disable()
+      else: # 成功時はnextボタンを有効化
+        self.btn.Enable()
+
+    # 問題ファイルの一覧を取得する関数
+    def getquestion(self):
+      files = os.listdir("question")
+      files_file = [f for f in files if os.path.isfile(os.path.join("question", f))]
+      
+      # ファイル名の一覧を配列で返却
+      return files_file
+
 
     # 問題文の収集を行う関数
     # 問題はcsvファイルに記述するが、utf-8にencodeを施す必要あり
@@ -161,6 +181,10 @@ class Quiz(wx.Frame):
         Quiz.push += 1
         # 今、何問目？
         qnum = Quiz.push // 3
+        
+        if(Quiz.push == 0):
+          self.btn_load.Hide()
+          self.combobox.Hide()
 
         # 全問題終了
         if(Quiz.push == self.q_num * 3):
@@ -246,6 +270,10 @@ class Quiz(wx.Frame):
         self.timer.Start(self.frame)
         return 0
 
+    def __init__(self, *args, **kw):
+        super(Quiz, self).__init__(*args, **kw)
+
+        self.init_ui()
 
 quiz = wx.App()
 Quiz(None)
