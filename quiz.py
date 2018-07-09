@@ -17,6 +17,9 @@ class Quiz(wx.Frame):
     # 現在の問題数のチェックにも使用
     push = -1
 
+    # 現在の問題番号
+    qnum = -1
+
     # 選択したcsvファイル名
     filepath = ""
 
@@ -38,13 +41,12 @@ class Quiz(wx.Frame):
     frame = 200  # 文字を送る時間間隔(ms)
     last_flg = True  # 最後の1文字の表示に関するフラグ
 
-
     # 初期設定を行う関数
     def init_ui(self):
 
         #"question.csv"から問題情報を抽出
-        #self.collectquestion('question.csv')
-        
+        # self.collectquestion('question.csv')
+
         # ウィンドウの生成
         self.SetTitle('漢文テクニカルクイズ')
         self.SetBackgroundColour((210, 255, 212))
@@ -95,9 +97,9 @@ class Quiz(wx.Frame):
         # 問題選択用のプルダウンメニュー
         # 問題ファイル一覧を取得
         question_list = self.getquestion()
-        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください',pos=(320,100),size=(220,26),
-                         choices=question_list, style=wx.CB_DROPDOWN)
-        
+        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください', pos=(320, 100), size=(220, 26),
+                                    choices=question_list, style=wx.CB_DROPDOWN)
+
         # 全文表示の再開用ボタン
         self.btn_load = wx.Button(panel_text, -1, 'Load', pos=(380, 220))
         self.btn_load.Bind(wx.EVT_BUTTON, self.clicked_load)
@@ -116,30 +118,31 @@ class Quiz(wx.Frame):
         self.main.SetLabel("漢文テクニカルクイズ")
         self.text.SetLabel("")
         Quiz.push = -1
+        self.qnum = -1
         self.question.clear()
         self.btn.Disable()
         self.btn_load.Show()
         self.combobox.Show()
 
-
     # loadボタン用の関数
-    def clicked_load(self,event):
-      self.filepath = "question/" + self.combobox.GetStringSelection()
-      try: # ファイルのロードを試みる
-        self.collectquestion(self.filepath)
-      except: # 失敗時はnextボタンを無効化
-        self.btn.Disable()
-      else: # 成功時はnextボタンを有効化
-        self.btn.Enable()
+    def clicked_load(self, event):
+        self.question.clear()
+        self.filepath = "question/" + self.combobox.GetStringSelection()
+        try:  # ファイルのロードを試みる
+            self.collectquestion(self.filepath)
+        except:  # 失敗時はnextボタンを無効化
+            self.btn.Disable()
+        else:  # 成功時はnextボタンを有効化
+            self.btn.Enable()
 
     # 問題ファイルの一覧を取得する関数
     def getquestion(self):
-      files = os.listdir("question")
-      files_file = [f for f in files if os.path.isfile(os.path.join("question", f))]
-      
-      # ファイル名の一覧を配列で返却
-      return files_file
+        files = os.listdir("question")
+        files_file = [f for f in files if os.path.isfile(
+            os.path.join("question", f))]
 
+        # ファイル名の一覧を配列で返却
+        return files_file
 
     # 問題文の収集を行う関数
     # 問題はcsvファイルに記述するが、utf-8にencodeを施す必要あり
@@ -155,11 +158,8 @@ class Quiz(wx.Frame):
 
                 # 問題漢文
                 # 漢字のみを抽出して漢文を作成する
-
                 kanbun = ""
-
                 for i in row[1]:
-
                     # unicodeから漢字を判定
                     if("CJK UNIFIED" in unicodedata.name(i)):
                         kanbun += i
@@ -180,11 +180,12 @@ class Quiz(wx.Frame):
     def clicked_next(self, event):
         Quiz.push += 1
         # 今、何問目？
-        qnum = Quiz.push // 3
-        
+        self.qnum = Quiz.push // 3
+        qnum = self.qnum
+
         if(Quiz.push == 0):
-          self.btn_load.Hide()
-          self.combobox.Hide()
+            self.btn_load.Hide()
+            self.combobox.Hide()
 
         # 全問題終了
         if(Quiz.push == self.q_num * 3):
@@ -197,37 +198,39 @@ class Quiz(wx.Frame):
 
         # 漢文表示
         elif Quiz.push % 3 == 0:
-            Quiz.kanbun_now = str(Quiz.question[qnum][1])
-            Quiz.zenbun_now = str(Quiz.question[qnum][2])
-            self.main.SetLabel("{}問目:漢文".format(str(qnum + 1)))
-
-            # 適切な箇所に改行を挟む
-            kanbun_output = Quiz.kanbun_now
-            for i in range(int(len(Quiz.kanbun_now) / 20)):
-                kanbun_output = kanbun_output[:20 *
-                                              (i + 1) + i] + "\n" + kanbun_output[20 * (i + 1) + i:]
-
-            self.text.SetLabel(kanbun_output)
+            self.push_kanbun()
 
         # 全文表示
         elif Quiz.push % 3 == 1:
-
-            # reloadquestionを呼び出すための各種準備
-            self.call_num = len(Quiz.zenbun_now) - len(Quiz.kanbun_now)
-            self.counter = 0
-            self.pointer = 0
-            self.last_flg = True
-            self.btn_stop.Enable()
-            self.main.SetLabel("{}問目:全文".format(str(qnum + 1)))
-            self.timer.Start(self.frame)  # reloadquestionの呼び出し開始
+            self.push_zenbun()
 
         # 解答表示
         else:
-            self.timer.Stop()  # reloadquestionの呼び出し終了
-            self.btn_start.Disable()
-            self.btn_stop.Disable()
-            self.main.SetLabel("{}問目:回答".format(str(qnum + 1)))
-            self.text.SetLabel(str(Quiz.question[qnum][3]))
+            self.push_kaitou()
+
+    # nextボタンが押されて漢文表示モードになった時
+    def push_kanbun(self):
+        Quiz.kanbun_now = str(Quiz.question[self.qnum][1])
+        Quiz.zenbun_now = str(Quiz.question[self.qnum][2])
+        self.main.SetLabel("{}問目:漢文".format(str(self.qnum + 1)))
+
+        # 適切な箇所に改行を挟む
+        kanbun_output = Quiz.kanbun_now
+        for i in range(int(len(Quiz.kanbun_now) / 20)):
+            kanbun_output = kanbun_output[:20 *
+                                          (i + 1) + i] + "\n" + kanbun_output[20 * (i + 1) + i:]
+        self.text.SetLabel(kanbun_output)
+
+    # nextボタンが押されて全文表示モードになった時
+    def push_zenbun(self):
+        # reloadquestionを呼び出すための各種準備
+        self.call_num = len(Quiz.zenbun_now) - len(Quiz.kanbun_now)
+        self.counter = 0
+        self.pointer = 0
+        self.last_flg = True
+        self.btn_stop.Enable()
+        self.main.SetLabel("{}問目:全文".format(str(self.qnum + 1)))
+        self.timer.Start(self.frame)  # reloadquestionの呼び出し開始
 
     # 問題文の更新を行う関数
     def reloadquestion(self, event):
@@ -257,13 +260,22 @@ class Quiz(wx.Frame):
         self.counter += 1
         return 0
 
-    # 全文表示の停止・再開ボタンを制御する関数
+    # next牡丹が押されて回答表示モードになった時
+    def push_kaitou(self):
+        self.timer.Stop()  # reloadquestionの呼び出し終了
+        self.btn_start.Disable()
+        self.btn_stop.Disable()
+        self.main.SetLabel("{}問目:回答".format(str(self.qnum + 1)))
+        self.text.SetLabel(str(Quiz.question[self.qnum][3]))
+
+    # 全文表示の停止ボタンを制御する関数
     def clicked_stop(self, event):
         self.btn_stop.Disable()
         self.btn_start.Enable()
         self.timer.Stop()
         return 0
 
+    # 全文表示の再開ボタンを制御する関数
     def clicked_start(self, event):
         self.btn_start.Disable()
         self.btn_stop.Enable()
@@ -274,6 +286,7 @@ class Quiz(wx.Frame):
         super(Quiz, self).__init__(*args, **kw)
 
         self.init_ui()
+
 
 quiz = wx.App()
 Quiz(None)
