@@ -66,6 +66,7 @@ class Quiz(wx.Frame):
         # 題字
         # 一回ボタンを押すとtextが差し替えられ、問題数などの表示になる
         self.main = wx.StaticText(panel_ui, -1, '漢文テクニカルクイズ')
+        self.main.SetForegroundColour("#FFFFFF")
         mainfont = wx.Font(40, wx.FONTFAMILY_DEFAULT,
                            wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         self.main.SetFont(mainfont)
@@ -90,11 +91,12 @@ class Quiz(wx.Frame):
 
         # 問題文用ウィンドウ
         # sizeは横900*縦400 題字と被らないように上のインデント広め
-        panel_text = wx.Panel(self, -1, pos=(50, 110), size=(900, 400))
+        panel_text = wx.Panel(self, -1, pos=(50, 110), size=(900, 420))
 
-        # 問題文を表示
-        # 最初は問題文の選択メニューを表示しておく。あとでここにtext追加。
+        # 問題文
+        # 最初は空文字。後からここにテキストを入れていく
         self.text = wx.StaticText(panel_text, -1, '')
+        self.text.SetForegroundColour("#FFFFFF")
         self.text.SetFont(mainfont)
         layout = wx.BoxSizer(wx.VERTICAL)
         layout.Add(self.text, flag=wx.GROW)
@@ -102,11 +104,11 @@ class Quiz(wx.Frame):
         # 問題選択用のプルダウンメニュー
         # 問題ファイル一覧を取得
         question_list = self.getquestion()
-        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください', pos=(320, 330), size=(220, 26),
+        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください', pos=(320, 360), size=(220, 26),
                                     choices=question_list, style=wx.CB_DROPDOWN)
 
         # 全文表示の再開用ボタン
-        self.btn_load = wx.Button(panel_text, -1, 'Load', pos=(380, 370))
+        self.btn_load = wx.Button(panel_text, -1, 'Load', pos=(380, 390))
         self.btn_load.Bind(wx.EVT_BUTTON, self.clicked_load)
 
         # タイマーオブジェクト
