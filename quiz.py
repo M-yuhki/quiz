@@ -54,9 +54,14 @@ class Quiz(wx.Frame):
         self.SetSize((1000, 700))
         self.Show()
 
+        # 背景画像
+        haikei = wx.Image( 'item/haikei.jpg',wx.BITMAP_TYPE_JPEG ).ConvertToBitmap()
+        wx.StaticBitmap( self, -1, haikei )
+
         # 題字とボタンを表示するメインウィンドウ
         # sizeは横900*縦600 max使っても上下左右に50の余白
         panel_ui = wx.Panel(self, -1, pos=(50, 50), size=(900, 600))
+
 
         # 題字
         # 一回ボタンを押すとtextが差し替えられ、問題数などの表示になる
@@ -97,11 +102,11 @@ class Quiz(wx.Frame):
         # 問題選択用のプルダウンメニュー
         # 問題ファイル一覧を取得
         question_list = self.getquestion()
-        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください', pos=(320, 100), size=(220, 26),
+        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください', pos=(320, 330), size=(220, 26),
                                     choices=question_list, style=wx.CB_DROPDOWN)
 
         # 全文表示の再開用ボタン
-        self.btn_load = wx.Button(panel_text, -1, 'Load', pos=(380, 220))
+        self.btn_load = wx.Button(panel_text, -1, 'Load', pos=(380, 370))
         self.btn_load.Bind(wx.EVT_BUTTON, self.clicked_load)
 
         # タイマーオブジェクト
