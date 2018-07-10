@@ -76,16 +76,16 @@ class Quiz(wx.Frame):
         # 各種ボタン
 
         # 全体進行用のボタン
-        self.btn = wx.Button(panel_ui, -1, 'Next', pos=(380, 550))
+        self.btn = wx.Button(panel_ui, -1, 'Next', pos=(390, 550))
         self.btn.Bind(wx.EVT_BUTTON, self.clicked_next)
 
         # 全文表示の停止用のボタン
-        self.btn_stop = wx.Button(panel_ui, -1, 'Stop', pos=(280, 520))
+        self.btn_stop = wx.Button(panel_ui, -1, 'Stop', pos=(290, 520))
         self.btn_stop.Bind(wx.EVT_BUTTON, self.clicked_stop)
         self.btn_stop.Disable()  # 問題進行中以外は使用不可
 
         # 全文表示の再開用ボタン
-        self.btn_start = wx.Button(panel_ui, -1, 'Start', pos=(480, 520))
+        self.btn_start = wx.Button(panel_ui, -1, 'Start', pos=(490, 520))
         self.btn_start.Bind(wx.EVT_BUTTON, self.clicked_start)
         self.btn_start.Disable()  # 問題進行中以外は使用不可
 
@@ -109,11 +109,11 @@ class Quiz(wx.Frame):
         # 問題選択用のプルダウンメニュー
         # 問題ファイル一覧を取得
         question_list = self.getquestion()
-        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください', pos=(320, 360), size=(220, 26),
+        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください', pos=(330, 360), size=(220, 26),
                                     choices=question_list, style=wx.CB_DROPDOWN)
 
         # 全文表示の再開用ボタン
-        self.btn_load = wx.Button(panel_text, -1, 'Load', pos=(380, 390))
+        self.btn_load = wx.Button(panel_text, -1, 'Load', pos=(390, 390))
         self.btn_load.Bind(wx.EVT_BUTTON, self.clicked_load)
 
         # タイマーオブジェクト
