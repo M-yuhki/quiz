@@ -55,17 +55,17 @@ class Quiz(wx.Frame):
         self.Show()
 
         # 背景画像
-        haikei = wx.Image( 'item/haikei.jpg',wx.BITMAP_TYPE_JPEG ).ConvertToBitmap()
-        wx.StaticBitmap( self, -1, haikei )
+        haikei = wx.Image('item/haikei.jpg',
+                          wx.BITMAP_TYPE_JPEG).ConvertToBitmap()
+        wx.StaticBitmap(self, -1, haikei)
 
         # 題字とボタンを表示するメインウィンドウ
         # sizeは横900*縦600 max使っても上下左右に50の余白
         panel_ui = wx.Panel(self, -1, pos=(50, 50), size=(900, 600))
 
-
         # 題字
         # 一回ボタンを押すとtextが差し替えられ、問題数などの表示になる
-        self.main = wx.StaticText(panel_ui, -1, '漢文テクニカルクイズ')
+        self.main = wx.StaticText(panel_ui, -1, '')
         self.main.SetForegroundColour("#FFFFFF")
         mainfont = wx.Font(40, wx.FONTFAMILY_DEFAULT,
                            wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
@@ -101,6 +101,11 @@ class Quiz(wx.Frame):
         layout = wx.BoxSizer(wx.VERTICAL)
         layout.Add(self.text, flag=wx.GROW)
 
+        # タイトル画像
+        daiji = wx.Image('item/title.jpg',
+                         wx.BITMAP_TYPE_JPEG).ConvertToBitmap()
+        self.title = wx.StaticBitmap(self, -1, daiji, pos=(90, 40))
+
         # 問題選択用のプルダウンメニュー
         # 問題ファイル一覧を取得
         question_list = self.getquestion()
@@ -122,7 +127,7 @@ class Quiz(wx.Frame):
 
     # 最初の状態を作る関数
     def start(self):
-        self.main.SetLabel("漢文テクニカルクイズ")
+        self.main.SetLabel("")
         self.text.SetLabel("")
         Quiz.push = -1
         self.qnum = -1
@@ -130,6 +135,7 @@ class Quiz(wx.Frame):
         self.btn.Disable()
         self.btn_load.Show()
         self.combobox.Show()
+        self.title.Show()
 
     # loadボタン用の関数
     def clicked_load(self, event):
@@ -193,6 +199,7 @@ class Quiz(wx.Frame):
         if(Quiz.push == 0):
             self.btn_load.Hide()
             self.combobox.Hide()
+            self.title.Hide()
 
         # 全問題終了
         if(Quiz.push == self.q_num * 3):
