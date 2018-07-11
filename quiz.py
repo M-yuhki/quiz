@@ -13,6 +13,38 @@ class Quiz(wx.Frame):
 
     # クラス変数の定義
 
+    # サイズ・座標周り
+    MAINWINDOWPOSITION_X = 200  # メインウィンドウのx座標
+    MAINWINDOWPOSITION_Y = 100  # メインウィンドウのy座標
+    MAINWINDOWSIZE_X = 1000  # メインウィンドウの横サイズ
+    MAINWINDOWSIZE_Y = 700  # メインウィンドウの縦サイズ
+    UIPANELPOSITION_X = 50  # メインパネルのx座標
+    UIPANELPOSITION_Y = 50  # メインパネルのy座標
+    UIPANELSIZE_X = 900  # メインパネルの横サイズ
+    UIPANELSIZE_Y = 600  # メインパネルの縦サイズ
+    MAINBTNPOSITION_X = 390  # メインボタンのx座標
+    MAINBTNPOSITION_Y = 550  # メインボタンのy座標
+    STOPBTNPOSITION_X = 290  # ストップボタンのx座標
+    STOPBTNPOSITION_Y = 520  # ストップボタンのy座標
+    STARTBTNPOSITION_X = 490  # スタートボタンのx座標
+    STARTBTNPOSITION_Y = 520  # スタートボタンのy座標
+    LOADBTNPOSITION_X = 390  # ロードボタンのx座標
+    LOADBTNPOSITION_Y = 390  # ロードボタンのy座標
+    TEXTPANELPOSITION_X = 50  # 問題テキストパネルのx座標
+    TEXTPANELPOSITION_Y = 110  # 問題テキストパネルのy座標
+    TEXTPANELSIZE_X = 900  # 問題テキストパネルの横サイズ
+    TEXTPANELSIZE_Y = 420  # 問題テキストパネルの縦サイズ
+    TITLEFIGPOSITION_X = 90  # タイトルロゴのx座標
+    TITLEFIGPOSITION_Y = 40  # タイトルロゴのy座標
+    COMBOBOXPOSITION_X = 330  # プルダウンメニューのx座標
+    COMBOBOXPOSITION_Y = 360  # プルダウンメニューのy座標
+    COMBOBOXSIZE_X = 220  # プルダウンメニューの横サイズ
+    COMBOBOXSIZE_Y = 26  # プルダウンメニューの縦サイズ
+
+    # フォント周り
+    fontcolor = "#FFFFFF"  # 文字色
+    fontsize = 40  # 文字サイズ
+
     # ボタンを押した回数
     # 現在の問題数のチェックにも使用
     push = -1
@@ -44,14 +76,11 @@ class Quiz(wx.Frame):
     # 初期設定を行う関数
     def init_ui(self):
 
-        #"question.csv"から問題情報を抽出
-        # self.collectquestion('question.csv')
-
         # ウィンドウの生成
         self.SetTitle('漢文テクニカルクイズ')
-        self.SetBackgroundColour((210, 255, 212))
-        self.SetPosition((200, 100))
-        self.SetSize((1000, 700))
+        self.SetPosition((self.MAINWINDOWPOSITION_X,
+                          self.MAINWINDOWPOSITION_Y))
+        self.SetSize((self.MAINWINDOWSIZE_X, self.MAINWINDOWSIZE_Y))
         self.Show()
 
         # 背景画像
@@ -61,13 +90,14 @@ class Quiz(wx.Frame):
 
         # 題字とボタンを表示するメインウィンドウ
         # sizeは横900*縦600 max使っても上下左右に50の余白
-        panel_ui = wx.Panel(self, -1, pos=(50, 50), size=(900, 600))
+        panel_ui = wx.Panel(self, -1, pos=(self.UIPANELPOSITION_X,
+                                           self.UIPANELPOSITION_Y), size=(self.UIPANELSIZE_X, self.UIPANELSIZE_Y))
 
         # 題字
         # 一回ボタンを押すとtextが差し替えられ、問題数などの表示になる
         self.main = wx.StaticText(panel_ui, -1, '')
-        self.main.SetForegroundColour("#FFFFFF")
-        mainfont = wx.Font(40, wx.FONTFAMILY_DEFAULT,
+        self.main.SetForegroundColour(self.fontcolor)
+        mainfont = wx.Font(self.fontsize, wx.FONTFAMILY_DEFAULT,
                            wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         self.main.SetFont(mainfont)
         layout = wx.BoxSizer(wx.VERTICAL)
@@ -76,27 +106,31 @@ class Quiz(wx.Frame):
         # 各種ボタン
 
         # 全体進行用のボタン
-        self.btn = wx.Button(panel_ui, -1, 'Next', pos=(390, 550))
+        self.btn = wx.Button(
+            panel_ui, -1, 'Next', pos=(self.MAINBTNPOSITION_X, self.MAINBTNPOSITION_Y))
         self.btn.Bind(wx.EVT_BUTTON, self.clicked_next)
 
         # 全文表示の停止用のボタン
-        self.btn_stop = wx.Button(panel_ui, -1, 'Stop', pos=(290, 520))
+        self.btn_stop = wx.Button(
+            panel_ui, -1, 'Stop', pos=(self.STOPBTNPOSITION_X, self.STOPBTNPOSITION_Y))
         self.btn_stop.Bind(wx.EVT_BUTTON, self.clicked_stop)
         self.btn_stop.Disable()  # 問題進行中以外は使用不可
 
         # 全文表示の再開用ボタン
-        self.btn_start = wx.Button(panel_ui, -1, 'Start', pos=(490, 520))
+        self.btn_start = wx.Button(
+            panel_ui, -1, 'Start', pos=(self.STARTBTNPOSITION_X, self.STARTBTNPOSITION_Y))
         self.btn_start.Bind(wx.EVT_BUTTON, self.clicked_start)
         self.btn_start.Disable()  # 問題進行中以外は使用不可
 
         # 問題文用ウィンドウ
         # sizeは横900*縦400 題字と被らないように上のインデント広め
-        panel_text = wx.Panel(self, -1, pos=(50, 110), size=(900, 420))
+        panel_text = wx.Panel(self, -1, pos=(self.TEXTPANELPOSITION_X,
+                                             self.TEXTPANELPOSITION_Y), size=(self.TEXTPANELSIZE_X, self.TEXTPANELSIZE_Y))
 
         # 問題文
         # 最初は空文字。後からここにテキストを入れていく
         self.text = wx.StaticText(panel_text, -1, '')
-        self.text.SetForegroundColour("#FFFFFF")
+        self.text.SetForegroundColour(self.fontcolor)
         self.text.SetFont(mainfont)
         layout = wx.BoxSizer(wx.VERTICAL)
         layout.Add(self.text, flag=wx.GROW)
@@ -104,16 +138,18 @@ class Quiz(wx.Frame):
         # タイトル画像
         daiji = wx.Image('item/title.jpg',
                          wx.BITMAP_TYPE_JPEG).ConvertToBitmap()
-        self.title = wx.StaticBitmap(self, -1, daiji, pos=(90, 40))
+        self.title = wx.StaticBitmap(
+            self, -1, daiji, pos=(self.TITLEFIGPOSITION_X, self.TITLEFIGPOSITION_Y))
 
         # 問題選択用のプルダウンメニュー
         # 問題ファイル一覧を取得
         question_list = self.getquestion()
-        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください', pos=(330, 360), size=(220, 26),
+        self.combobox = wx.ComboBox(panel_text, wx.ID_ANY, '問題ファイルを選択してください', pos=(self.COMBOBOXPOSITION_X, self.COMBOBOXPOSITION_Y), size=(self.COMBOBOXSIZE_X, self.COMBOBOXSIZE_Y),
                                     choices=question_list, style=wx.CB_DROPDOWN)
 
-        # 全文表示の再開用ボタン
-        self.btn_load = wx.Button(panel_text, -1, 'Load', pos=(390, 390))
+        # 問題ファイルロードボタン
+        self.btn_load = wx.Button(
+            panel_text, -1, 'Load', pos=(self.LOADBTNPOSITION_X, self.LOADBTNPOSITION_Y))
         self.btn_load.Bind(wx.EVT_BUTTON, self.clicked_load)
 
         # タイマーオブジェクト
