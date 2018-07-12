@@ -155,8 +155,10 @@ class Quiz(wx.Frame):
         # タイマーオブジェクト
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.reloadquestion)
-        self.Fit()
         self.counter = 0
+
+        # 画像をフィットさせる
+        self.Fit()
 
         # 初期状態にする
         self.start()
