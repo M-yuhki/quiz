@@ -1,0 +1,1 @@
+([('quiz', '/Users/yuhki/git_hub/quiz/dist/quiz', 'EXECUTABLE')],)

@@ -1,0 +1,16 @@
+missing module named 'org.python' - imported by pickle, /Users/yuhki/git_hub/quiz/quiz.py, xml.sax
+missing module named ce - imported by os, /Users/yuhki/git_hub/quiz/quiz.py
+excluded module named _frozen_importlib - imported by importlib, importlib.abc, /Users/yuhki/git_hub/quiz/quiz.py
+missing module named _frozen_importlib_external - imported by importlib._bootstrap, importlib, importlib.abc, /Users/yuhki/git_hub/quiz/quiz.py
+missing module named _winreg - imported by platform, /Users/yuhki/git_hub/quiz/quiz.py
+missing module named java - imported by platform, /Users/yuhki/git_hub/quiz/quiz.py
+missing module named 'java.lang' - imported by platform, /Users/yuhki/git_hub/quiz/quiz.py, xml.sax._exceptions
+missing module named vms_lib - imported by platform, /Users/yuhki/git_hub/quiz/quiz.py
+missing module named msvcrt - imported by subprocess, /Users/yuhki/git_hub/quiz/quiz.py, getpass
+missing module named _winapi - imported by subprocess, /Users/yuhki/git_hub/quiz/quiz.py
+missing module named winreg - imported by platform, mimetypes, /Users/yuhki/git_hub/quiz/quiz.py, urllib.request
+missing module named _dummy_threading - imported by dummy_threading, /Users/yuhki/git_hub/quiz/quiz.py
+missing module named nt - imported by os, ntpath, shutil, /Users/yuhki/git_hub/quiz/quiz.py
+missing module named org - imported by copy, /Users/yuhki/git_hub/quiz/quiz.py
+missing module named Carbon - imported by wx.lib.colourutils
+missing module named StringIO - imported by six
