@@ -73,6 +73,13 @@ class Quiz(wx.Frame):
     frame = 200  # 文字を送る時間間隔(ms)
     last_flg = True  # 最後の1文字の表示に関するフラグ
 
+
+    # pyinstaller用に_MEIPASSを認識させる
+    def resource_path(self,relative):
+      if hasattr(sys,"_MEIPASS"):
+        return os.path.join(sys._MEIPASS,relative)
+      return os.path.join(relative)
+
     # 初期設定を行う関数
     def init_ui(self):
 
@@ -84,7 +91,8 @@ class Quiz(wx.Frame):
         self.Show()
 
         # 背景画像
-        haikei = wx.Image('item/haikei.jpg',
+        #haikei = wx.Image('./item/haikei.jpg',
+        haikei = wx.Image(self.resource_path("./item/haikei.jpg"),
                           wx.BITMAP_TYPE_JPEG).ConvertToBitmap()
         wx.StaticBitmap(self, -1, haikei)
 
@@ -136,7 +144,7 @@ class Quiz(wx.Frame):
         layout.Add(self.text, flag=wx.GROW)
 
         # タイトル画像
-        daiji = wx.Image('item/title.jpg',
+        daiji = wx.Image(self.resource_path('./item/title.jpg'),
                          wx.BITMAP_TYPE_JPEG).ConvertToBitmap()
         self.title = wx.StaticBitmap(
             self, -1, daiji, pos=(self.TITLEFIGPOSITION_X, self.TITLEFIGPOSITION_Y))
@@ -178,7 +186,7 @@ class Quiz(wx.Frame):
     # loadボタン用の関数
     def clicked_load(self, event):
         self.question.clear()
-        self.filepath = "question/" + self.combobox.GetStringSelection()
+        self.filepath = self.resource_path("./question/") + self.combobox.GetStringSelection()
         try:  # ファイルのロードを試みる
             self.collectquestion(self.filepath)
         except:  # 失敗時はnextボタンを無効化
