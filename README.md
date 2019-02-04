@@ -1,6 +1,5 @@
 # Quiz
 
-# What is this?
 好きな問題を漢文テクニカルクイズ風に出題するプログラムです。
 
 # Motivation
